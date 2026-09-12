@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>حکمت‌واژه | پایگاه جامع طب سنتی</title>
+    <style>
+        :root { --main: #5d4037; --accent: #c69c6d; --bg: #fdf6e3; }
+        body { font-family: 'Tahoma', sans-serif; background: var(--bg); color: #3e2723; padding: 20px; text-align: center; }
+        .card { background: #fff; max-width: 600px; margin: auto; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .btn { background: var(--main); color: white; padding: 15px; border-radius: 10px; border: none; width: 100%; margin-top: 10px; cursor: pointer; }
+        .btn:hover { background: var(--accent); }
+        .question-box { font-size: 1.5em; margin: 20px 0; font-weight: bold; }
+        .stats { display: flex; justify-content: space-between; font-weight: bold; color: var(--main); }
+        #scramble-text { font-size: 2em; letter-spacing: 10px; color: #d32f2f; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="stats" id="stats"><span>مرحله: -</span><span>امتیاز: 0</span></div>
+    <div id="game-container">
+        <h1>حکمت‌واژه</h1>
+        <p>به نسخه جامع و آفلاین خوش آمدید.</p>
+        <button class="btn" onclick="startLevel('مقدماتی')">شروع مرحله مقدماتی</button>
+        <button class="btn" onclick="startLevel('حرفه‌ای')">شروع مرحله حرفه‌ای</button>
+        <button class="btn" onclick="startLevel('تخصصی')">شروع مرحله تخصصی</button>
+    </div>
+</div>
+
+<script>
+    // بانک سوالات جامع (هرچقدر بخواهید می‌توانید اینجا اضافه کنید)
+    const database = {
+        "مقدماتی": [
+            { type: "mcq", q: "زالو کدام مزاج را اصلاح می‌کند؟", options: ["دموی", "بلغمی", "سوداوی", "صفراوی"], ans: "دموی" },
+            { type: "text", q: "به تجمع بیش از حد خون در بدن چه می‌گویند؟", ans: "امتلاء" }
+        ],
+        "حرفه‌ای": [
+            { type: "scramble", q: "نام زالو در طب سنتی (حروف درهم):", ans: "علق" },
+            { type: "text", q: "کدام بیماری خونی مانع زالودرمانی است؟", ans: "هموفیلی" }
+        ],
+        "تخصصی": [
+            { type: "text", q: "منطقه ممنوعه زالودرمانی از نظر شریان حیاتی؟", ans: "گردن" },
+            { type: "text", q: "معنی لغوی زالو در متون کهن چیست؟", ans: "علق" }
+        ]
+    };
+
+    let currentLevel = "", currentIdx = 0, score = 0;
+
+    function startLevel(level) {
+        currentLevel = level; currentIdx = 0;
+        renderQuestion();
+    }
+
+    function renderQuestion() {
+        const q = database[currentLevel][currentIdx];
+        const container = document.getElementById('game-container');
+        container.innerHTML = `<div class="question-box">${q.q}</div>`;
+
+        if (q.type === "mcq") {
+            q.options.forEach(o => container.innerHTML += `<button class="btn" onclick="check('${o}')">${o}</button>`);
+        } else if (q.type === "text") {
+            container.innerHTML += `<input type="text" id="ans" style="width:100%; padding:10px; margin-bottom:10px;"><button class="btn" onclick="check(document.getElementById('ans').value)">ثبت پاسخ</button>`;
+        } else if (q.type === "scramble") {
+            container.innerHTML += `<div id="scramble-text">${q.ans.split('').sort().join('-')}</div><input type="text" id="ans" style="width:100%; padding:10px;"><button class="btn" onclick="check(document.getElementById('ans').value)">ثبت پاسخ</button>`;
+        }
+    }
+
+    function check(val) {
+        const q = database[currentLevel][currentIdx];
+        if (val.trim() === q.ans) {
+            score += 10; alert("صحیح!");
+        } else {
+            score = Math.max(0, score - 5); alert("اشتباه!");
+        }
+        currentIdx++;
+        if (currentIdx < database[currentLevel].length) renderQuestion();
+        else {
+            alert("مرحله تمام شد! امتیاز: " + score);
+            location.reload();
+        }
+        updateStats();
+    }
+
+    function updateStats() {
+        document.getElementById('stats').innerHTML = `<span>مرحله: ${currentLevel}</span><span>امتیاز: ${score}</span>`;
+    }
+</script>
+</body>
+</html>
